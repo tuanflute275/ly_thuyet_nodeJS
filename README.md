@@ -1,3 +1,8 @@
+## cấu hình cấu trúc node nhanh
+-->step1: npm install -g express-generator
+---> step2: express --view=ejs ten_folder
+---> npm install --> npm start --> localhost:3000
+
 ## câu lệnh npm
     npm init 
         ----->(tạo file package.json)
@@ -164,21 +169,28 @@ step2: create file jwt and import
 ===> verify() --> check mã token nếu đúng thì cho qua sai thì dừng 
 --> middleware jwt -->ứng dụng làm login,, phân quyền user 
 
+** cấu trúc
+token = header.payload.signnature
+data + secret (sign) => token
+token + secret (verify) => data
+
 
 -----> ví dụ:
 
-            jwt.sign({data: 'foobar'}, 'secret', { expiresIn: '1h' });
-            hoặc
-            ----->user là data truyền vào 
-            jwt.sign({data:user},process.env.ACCESS_TOKEN, {
-                algorithm:"HS256",
-                expiresIn:process.env.TOKEN_TIME_LIFE
-            },
+        jwt.sign({data: 'foobar'}, 'secret', { expiresIn: '1h' });
+        hoặc
+        ----->user là data truyền vào 
+        jwt.sign({data:user},process.env.ACCESS_TOKEN, {
+            algorithm:"HS256",
+            expiresIn:process.env.TOKEN_TIME_LIFE
+        },
 
 -----> ví dụ:
     jwt.verify(token, 'secret', function(err, decoded) {
   console.log(decoded.foo) // bar
 });
+
+//update continue
 
 
 ## Cài đặt OpenSSL, sử dụng tạo private key và public key
@@ -219,11 +231,106 @@ var token = jwt.sign({ foo: 'bar' }, privateKey, { algorithm: 'RS256' });
     var privateKey = fs.readFileSync('./key/private.pem');
     // var token = jwt.sign({ foo: 'bar' }, privateKey, { algorithm: 'RS256' });
     // console.log(token);
-    const token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE2ODM5OTE0NTB9.nIYW-YJ-YkqcvLTrcDCY6C37w6DTHVJJUxTot7U23MA8lgOyadsJgiqJKwwUdQ4od5IW550eskPQScg946nNyZxK_JjNvqmK0laomZPzW0ARb8gIEQr20R9u6u76N6683suPNM8QOcxHNjSE2rpX0SzzJQpUx9I22O1CDT66n-VNoETXXJtg2cBXjSomtgyax-_Nl1rLPwb1v2mIGCig5iShrlIDW5JMd6s8BzBBUQeiWYjX_7InBMg_1bA6w5IIksIdb0rTnzky8k7JHNk1hYshZlW4_ucG7LHBVySDZD06KbXKTVm6ynxlgjSsJ8jvKkyGPmkgKoAzoM8JU0iycQ"
+    const token = "token vừa tạo"
+    ví dụ:
+          var token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE2ODM5OTY2OTZ9.e_CCVaecs0YngD5UGhtgOeu7695AcVFlqlSkd8IJmUzhUrT-XzVApFOgh0Bmj4nvBtwnRBT2AFJD09oqHeNr9QP6Cmu8GSb_LSOP96Hl3k42HuIjsezzCyE7a0BNUvEQgO1EgTRFpND5fugCzDPmQMrpYv7YwuJAugHNEzWtdQJKn6lW9FwpeUro-Ya8ZN88oItW3H6VFU9BcekzOKHDShuEJw1R49xA6X6emMuQDfCYTQ3ciYS0KRqT97NADbpNCli7vHnspeKvCeLfj5xZjmzG1AqFT5xMm9LLJ5AJnmUGg_Gb92XnPIloqC8fSgQLi8pg_ISBcAN2aOdbiDWhiw"
 
     var cert = fs.readFileSync('./key/publickey.crt'); 
     const kq = jwt.verify(token, cert, { algorithms: ['RS256'] })
     console.log(kq);
+
+## promise
+
+--> new Promise((re, rj)={})
+.then: chỉ dc gọi khi rs hoặc rj thực hiện xong
+.catch()
+
+async await 
+  await new Promise
+  :bắt tất cả thằng bên dưới phải đợi
+
+xử lí lỗi
+  Promise.catch
+    async 
+    try {}catch(){}
+
+
+
+var pr1 = new Promise((resolve, reject )=>{
+  fs.readFile('', (err, data)=>{
+    if(err) reject(err)
+    else resolve(data)
+  })
+})
+.then((data)=>{
+  return p2
+})
+<!-- return cái gì thì .then sau nhận dc cái đó -->
+.then((data)=>{
+  return p3
+})
+.then((data)=>{
+  return p4
+})
+.catch((err)=>{
+  console.log(err )
+})
+
+async (req, res)=>{
+  var kq = await pool.excute('select* from users where id=?', [ id])
+}
+
+try {
+  // code đông bộ await ....
+}catch(err)=>{
+  console.log(err)
+}
+
+## Session cookie và cài đặt redis
+**cookie**
+--> link: https://www.w3schools.com/js/js_cookies.asp
+--> viết trong cặp script
+    function setCookie(cname, cvalue, exdays) {
+        const d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        let expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+    setCookie('username', 'tuanflute', 1)
+
+--> muốn xóa  cookie thì thay 1 thành -1 , nó chỉ là nơi lưu trũ có thời gian hết hạn , 1 là 1 ngày
+
+**Session**
+--->link: https://www.npmjs.com/package/express-session
+--->npm i express-session
+--->download redis -->  https://github.com/microsoftarchive/redis/releases/tag/win-2.8.2104
+--> npm i connect-redis
+--> npm i redis
+
+## passportJS Local và Bearer Token  -->https://www.passportjs.org/
+--> npm i passport passport-local
+
+--> ví dụ:
+        var passport = require('passport')
+        var LocalStrategy = require('passport-local').Strategy
+
+
+
 
 
 
