@@ -157,6 +157,78 @@ exports.home = function (req, res) {
 --- trong file index.ejs để có thể nhìn thấy ta thêm dataUser của file homecontroller vào
 ----bằng cách sau: <%= dataUser %>
 
+## jsonWebToken - jwt
+step1: npm i jsonwebtoken
+step2: create file jwt and import
+===> sign() --> tạo mã token
+===> verify() --> check mã token nếu đúng thì cho qua sai thì dừng 
+--> middleware jwt -->ứng dụng làm login,, phân quyền user 
+
+
+-----> ví dụ:
+
+            jwt.sign({data: 'foobar'}, 'secret', { expiresIn: '1h' });
+            hoặc
+            ----->user là data truyền vào 
+            jwt.sign({data:user},process.env.ACCESS_TOKEN, {
+                algorithm:"HS256",
+                expiresIn:process.env.TOKEN_TIME_LIFE
+            },
+
+-----> ví dụ:
+    jwt.verify(token, 'secret', function(err, decoded) {
+  console.log(decoded.foo) // bar
+});
+
+
+## Cài đặt OpenSSL, sử dụng tạo private key và public key
+===> mã hóa secret bthg là chuỗi kí tự thì ngta có thể dung tool tra ra rất nhanh 
+nhưng với ssl thì nó là cả 1 đoạn văn bản rất khó để hack 
+----> secret coi như là mật khẩu 
+
+---> tải thư viện ssl để tạo mật khẩu bảo mật với ssl
+===> https://slproweb.com/products/Win32OpenSSL.html
+--> nếu cài các bản kia k dc thì cài bản 1.1 light
+
+--> cấu hình set môi  trg
+vào tìm kiếm của máy tìm: environment --> chọn edit -> environment variable --> chọn path của system variable -> chọn new -> dán câu này vào và ok --> C:\Program Files\OpenSSL-Win64\bin
+
+---> check thử xem dc chưa --> cmd gõ openssl --> nếu ra openssl> là đã cài dc 
+
+---> openssl generate private key and public key
+hoặc
+--->https://stackoverflow.com/questions/44474516/how-to-create-public-and-private-key-with-openssl
+---> 2 link này có câu lệnh tạo private key
+
+===> vào thư project tạo thư mục key -> vào thư mục key -> cmd --> dán câu lệnh này vào để tạo key
+
+ --> tạo private key --> openssl genrsa -out private.pem 2048 --> không có thông tin gì
+ --> tạo private key có thông tin --> openssl req -newkey rsa:2048 -nodes -keyout domain.key -out domain.csr
+
+ --> tạo public key từ private key --> openssl rsa -in keypair.pem -pubout -out publickey.crt
+ --> tạo public key từ private key có thông tin --> openssl req -key domain.key -new -out publickey2.csr
+
+-->https://www.npmjs.com/package/jsonwebtoken --> 
+var privateKey = fs.readFileSync('private.key');
+var token = jwt.sign({ foo: 'bar' }, privateKey, { algorithm: 'RS256' });
+-->
+
+==> ví dụ:
+    var jwt = require('jsonwebtoken')
+    var fs = require('fs')
+    var privateKey = fs.readFileSync('./key/private.pem');
+    // var token = jwt.sign({ foo: 'bar' }, privateKey, { algorithm: 'RS256' });
+    // console.log(token);
+    const token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE2ODM5OTE0NTB9.nIYW-YJ-YkqcvLTrcDCY6C37w6DTHVJJUxTot7U23MA8lgOyadsJgiqJKwwUdQ4od5IW550eskPQScg946nNyZxK_JjNvqmK0laomZPzW0ARb8gIEQr20R9u6u76N6683suPNM8QOcxHNjSE2rpX0SzzJQpUx9I22O1CDT66n-VNoETXXJtg2cBXjSomtgyax-_Nl1rLPwb1v2mIGCig5iShrlIDW5JMd6s8BzBBUQeiWYjX_7InBMg_1bA6w5IIksIdb0rTnzky8k7JHNk1hYshZlW4_ucG7LHBVySDZD06KbXKTVm6ynxlgjSsJ8jvKkyGPmkgKoAzoM8JU0iycQ"
+
+    var cert = fs.readFileSync('./key/publickey.crt'); 
+    const kq = jwt.verify(token, cert, { algorithms: ['RS256'] })
+    console.log(kq);
+
+
+
+
+
 
 
 
