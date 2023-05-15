@@ -162,6 +162,81 @@ exports.home = function (req, res) {
 --- trong file index.ejs để có thể nhìn thấy ta thêm dataUser của file homecontroller vào
 ----bằng cách sau: <%= dataUser %>
 
+
+## tạo orm với mysql
+👉 1. Cài đặt các thư viện: sequlize-cli, sequelize và mysql2
+npm install --save-dev sequelize-cli@6.2.0
+npm install --save mysql2@2.2.5
+npm install --save sequelize@6.6.2
+👉 Tại thư mục root, sử dụng câu lệnh: node_modules/.bin/sequelize init
+👉 3. Tạo model: 
+npx sequelize-cli model:generate --name User --attributes firstName:string,lastName:string,email:string
+👉 4: Tạo migrations:
+npx sequelize-cli db:migrate
+----- lỗi : vào file .env thêm câu NODE_ENV=development này vào
+👉5. Tạo Seeder: npx sequelize-cli seed:generate --name demo-user
+
+-----> //dán câu lệnh config vào: npx sequelize-cli init -->thay = câu node modules ở trên r
+------> khi chạy nh câu lệnh trên nó sẽ lỗi
+
+và ta cần 1 file để config là .sequelizerc
+trong file .sequelizerc cấu hình như sau
+----
+const path = require('path');
+module.exports = {
+  'config': path.resolve('./src/config', 'config.json'),
+  'migrations-path': path.resolve('./src', 'migrations'),
+  'models-path': path.resolve('./src', 'models'),
+  'seeders-path': path.resolve('./src', 'seeders')
+}
+------
+'models-path': path.resolve('./src', 'models'),
+----> nó giúp ta tạo file models trong src
+----
+  'seeders-path': path.resolve('./src', 'seeders')
+  seed --> giúp tạo dữ liệu fake
+----
+'migrations-path': path.resolve('./src', 'migrations'),
+migrations -->tạo bảng với mysql qua câu lệnh ngắn gọn trên terminal
+---
+'config': path.resolve('./src/config', 'config.json'),
+----> nói cho biết lấy database từ đâu
+---
+  return queryInterface.bulkInsert('User',[{
+      firstName: 'john',
+      lastName: 'Doe',
+      email:'example@gmail.com',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }])
+--> theem cau lenh nay vao phan up caur file seeders
+----> giups t quay laij dc database truocws ddo
+
+***tiep tuc chay cau lenh nay:  npx sequelize-cli db:seed:all ***
+<!-- xong taoj database rtaoh seed -->
+npx sequelize-cli db:seed:all
+
+
+### has password ->max hoas mat khau
+npm i --save bcrypt@5.0.1
+
+>>ví dụ
+
+        let hasUserPassword = (password) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    let hasPassword = await bcrypt.hashSync(password, salt)
+                    resolve(hasPassword)
+                } catch (err) {
+                    reject(err)
+                }
+            })
+        }
+
+--> dùng : hasUserPassword(data.password)
+
+
+
 ## jsonWebToken - jwt
 step1: npm i jsonwebtoken
 step2: create file jwt and import
@@ -322,12 +397,17 @@ try {
 --> npm i connect-redis
 --> npm i redis
 
-## passportJS Local và Bearer Token  -->https://www.passportjs.org/
+## passportJS Local và Bearer Token  
+-->https://www.passportjs.org/ --> nó tạo ra 1 kịch bản -> ví dụ nó cho phép đăng nhập bằng fb , gg ... thì nhờ fb  xác thực hộ và quay về server tạo jwt để xác thực k cần tạo tk bthg nữa --> chức năng đang nhập bằng bên thứ 3
+
 --> npm i passport passport-local
 
 --> ví dụ:
         var passport = require('passport')
         var LocalStrategy = require('passport-local').Strategy
+
+
+## Starpi Nodejs
 
 
 
